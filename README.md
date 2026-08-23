@@ -134,10 +134,10 @@ npm run seed
 
 **Default admin credentials:**
 
-| Field    | Value                        |
-|----------|------------------------------|
-| Email    | admin@knowlesknives.co.za    |
-| Password | Admin123!                    |
+| Email                     | Password   |
+|---------------------------|------------|
+| admin@knowlesknives.co.za | Admin123!  |
+| knowles@admin.com         | Qwerty12   |
 
 ## Environment Variables
 
@@ -153,6 +153,9 @@ npm run seed
 | JWT_EXPIRES_IN   | Token expiry                         | 1d                         |
 | CLIENT_URL       | Angular frontend URL for CORS        | http://localhost:4200      |
 | NODE_ENV         | Environment                          | development                |
+| CLOUDINARY_URL   | Cloudinary credentials (production uploads) | —                          |
+
+For Code Capsules deployment steps, see [HOSTING.md](HOSTING.md).
 
 ## API Response Format
 

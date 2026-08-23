@@ -14,6 +14,24 @@ if (process.env.JWT_SECRET.length < 16) {
   process.exit(1);
 }
 
+const parseCloudinaryUrl = (url) => {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'cloudinary:') return null;
+    if (!parsed.username || !parsed.password || !parsed.hostname) return null;
+    return {
+      apiKey: decodeURIComponent(parsed.username),
+      apiSecret: decodeURIComponent(parsed.password),
+      cloudName: parsed.hostname,
+    };
+  } catch {
+    return null;
+  }
+};
+
+const cloudinaryCredentials = parseCloudinaryUrl(process.env.CLOUDINARY_URL);
+
 const env = {
   port: Number(process.env.PORT) || 5000,
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -33,6 +51,15 @@ const env = {
   admin: {
     email: process.env.ADMIN_EMAIL || 'admin@knowlesknives.co.za',
     password: process.env.ADMIN_PASSWORD || 'Admin123!',
+  },
+  cloudinary: {
+    url: process.env.CLOUDINARY_URL || '',
+    cloudName: cloudinaryCredentials?.cloudName || '',
+    apiKey: cloudinaryCredentials?.apiKey || '',
+    apiSecret: cloudinaryCredentials?.apiSecret || '',
+    get isConfigured() {
+      return Boolean(cloudinaryCredentials);
+    },
   },
 };
 

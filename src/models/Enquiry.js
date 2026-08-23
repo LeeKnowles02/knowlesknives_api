@@ -4,6 +4,7 @@ const sequelize = require('../config/database');
 const ENQUIRY_TYPE_VALUES = [
   'General',
   'Knife Enquiry',
+  'Goods Enquiry',
   'Custom Knife',
   'Knife Making Course',
   'Engraving',
@@ -43,6 +44,14 @@ const Enquiry = sequelize.define(
       allowNull: true,
     },
     selectedKnifeName: {
+      type: DataTypes.STRING(200),
+      allowNull: true,
+    },
+    selectedGoodId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    selectedGoodName: {
       type: DataTypes.STRING(200),
       allowNull: true,
     },

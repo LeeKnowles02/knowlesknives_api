@@ -3,8 +3,8 @@ const sequelize = require('../config/database');
 
 const AVAILABILITY_VALUES = ['Available', 'Reserved', 'Sold', 'Made to Order'];
 
-const Knife = sequelize.define(
-  'Knife',
+const Good = sequelize.define(
+  'Good',
   {
     id: {
       type: DataTypes.INTEGER,
@@ -41,20 +41,20 @@ const Knife = sequelize.define(
       allowNull: false,
       defaultValue: 'Available',
     },
-    steelType: {
+    material: {
       type: DataTypes.STRING(100),
       allowNull: true,
     },
-    handleMaterial: {
+    finish: {
       type: DataTypes.STRING(100),
       allowNull: true,
     },
-    bladeLength: {
-      type: DataTypes.STRING(50),
+    dimensions: {
+      type: DataTypes.STRING(100),
       allowNull: true,
     },
-    overallLength: {
-      type: DataTypes.STRING(50),
+    personalization: {
+      type: DataTypes.STRING(255),
       allowNull: true,
     },
     notes: {
@@ -77,10 +77,10 @@ const Knife = sequelize.define(
     },
   },
   {
-    tableName: 'knives',
+    tableName: 'goods',
   }
 );
 
-Knife.AVAILABILITY_VALUES = AVAILABILITY_VALUES;
+Good.AVAILABILITY_VALUES = AVAILABILITY_VALUES;
 
-module.exports = Knife;
+module.exports = Good;

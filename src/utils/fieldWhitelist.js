@@ -11,6 +11,24 @@ const KNIFE_FIELDS = [
   'overallLength',
   'notes',
   'featured',
+  'featuredOrder',
+  'active',
+];
+
+const GOOD_FIELDS = [
+  'name',
+  'category',
+  'shortDescription',
+  'description',
+  'price',
+  'availability',
+  'material',
+  'finish',
+  'dimensions',
+  'personalization',
+  'notes',
+  'featured',
+  'featuredOrder',
   'active',
 ];
 
@@ -24,4 +42,6 @@ const SERVICE_FIELDS = [
   'featured',
 ];
 
-module.exports = { KNIFE_FIELDS, SERVICE_FIELDS };
+const GALLERY_FIELDS = ['title', 'imageUrl', 'category', 'sortOrder', 'active'];
+
+module.exports = { KNIFE_FIELDS, GOOD_FIELDS, SERVICE_FIELDS, GALLERY_FIELDS };

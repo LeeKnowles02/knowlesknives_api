@@ -1,4 +1,4 @@
-const { Enquiry, Knife, Service } = require('../models');
+const { Enquiry, Knife, Good, Service } = require('../models');
 const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/AppError');
 const { sendSuccess } = require('../utils/response');
@@ -14,11 +14,13 @@ const createEnquiry = asyncHandler(async (req, res) => {
     phone,
     enquiryType,
     selectedKnifeId,
+    selectedGoodId,
     selectedServiceId,
     message,
   } = req.body;
 
   let selectedKnifeName = null;
+  let selectedGoodName = null;
   let selectedServiceName = null;
 
   if (selectedKnifeId) {
@@ -31,6 +33,18 @@ const createEnquiry = asyncHandler(async (req, res) => {
     }
 
     selectedKnifeName = knife.name;
+  }
+
+  if (selectedGoodId) {
+    const good = await Good.findOne({
+      where: { id: selectedGoodId, active: true },
+    });
+
+    if (!good) {
+      throw new AppError('Selected good not found or is not available', 400);
+    }
+
+    selectedGoodName = good.name;
   }
 
   if (selectedServiceId) {
@@ -52,6 +66,8 @@ const createEnquiry = asyncHandler(async (req, res) => {
     enquiryType,
     selectedKnifeId: selectedKnifeId || null,
     selectedKnifeName,
+    selectedGoodId: selectedGoodId || null,
+    selectedGoodName,
     selectedServiceId: selectedServiceId || null,
     selectedServiceName,
     message: message.trim(),
@@ -83,6 +99,7 @@ const getAdminEnquiries = asyncHandler(async (req, res) => {
     where,
     include: [
       { model: Knife, as: 'selectedKnife', attributes: ['id', 'name', 'slug'] },
+      { model: Good, as: 'selectedGood', attributes: ['id', 'name', 'slug'] },
       { model: Service, as: 'selectedService', attributes: ['id', 'title', 'slug'] },
     ],
     order: [['createdAt', 'DESC']],
@@ -95,6 +112,7 @@ const getAdminEnquiryById = asyncHandler(async (req, res) => {
   const enquiry = await Enquiry.findByPk(req.params.id, {
     include: [
       { model: Knife, as: 'selectedKnife', attributes: ['id', 'name', 'slug'] },
+      { model: Good, as: 'selectedGood', attributes: ['id', 'name', 'slug'] },
       { model: Service, as: 'selectedService', attributes: ['id', 'title', 'slug'] },
     ],
   });

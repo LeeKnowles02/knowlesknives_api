@@ -18,6 +18,7 @@ const router = express.Router();
 const adminRouter = express.Router();
 
 router.get('/', getPublicKnives);
+//slug is readable string derived from the name, like bush-knife
 router.get('/:slug', getPublicKnifeBySlug);
 
 adminRouter.use(authMiddleware, requireRole('admin'));

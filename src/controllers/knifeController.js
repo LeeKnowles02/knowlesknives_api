@@ -7,6 +7,7 @@ const { KNIFE_FIELDS } = require('../utils/fieldWhitelist');
 const { generateUniqueSlug } = require('../utils/generateSlug');
 const { sendSuccess } = require('../utils/response');
 const { validateImages, validatePrice } = require('../utils/validators');
+const { applyFeaturedFields, MAX_FEATURED } = require('../utils/featuredKnives');
 
 const imageInclude = {
   model: KnifeImage,
@@ -59,7 +60,10 @@ const getPublicKnives = asyncHandler(async (req, res) => {
   const knives = await Knife.findAll({
     where,
     include: [imageInclude],
-    order: [['createdAt', 'DESC']],
+    order: featured === 'true'
+      ? [['featuredOrder', 'ASC'], ['createdAt', 'DESC']]
+      : [['createdAt', 'DESC']],
+    limit: featured === 'true' ? MAX_FEATURED : undefined,
   });
 
   sendSuccess(res, knives.map(formatKnife));
@@ -108,6 +112,7 @@ const createKnife = asyncHandler(async (req, res) => {
   if (priceError) throw new AppError(priceError, 400);
 
   const knife = await sequelize.transaction(async (transaction) => {
+    await applyFeaturedFields(knifeData, null, transaction);
     const slug = await generateUniqueSlug(knifeData.name, Knife);
     const created = await Knife.create({ ...knifeData, slug }, { transaction });
     await createKnifeImages(created.id, images, transaction);
@@ -143,6 +148,16 @@ const updateKnife = asyncHandler(async (req, res) => {
   }
 
   await sequelize.transaction(async (transaction) => {
+    await applyFeaturedFields(knifeData, knife.id, transaction);
+
+    if (knifeData.featured === false) {
+      knifeData.featuredOrder = null;
+    }
+
+    if (knifeData.active === false) {
+      knifeData.featuredOrder = null;
+    }
+
     await knife.update(knifeData, { transaction });
 
     if (images !== undefined) {
