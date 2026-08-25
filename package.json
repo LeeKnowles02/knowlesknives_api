@@ -11,6 +11,7 @@
     "db:migrate:undo:all": "sequelize-cli db:migrate:undo:all",
     "seed": "node src/seeders/seedAdmin.js && node src/seeders/seedMockData.js",
     "seed:admin": "node src/seeders/seedAdmin.js",
+    "seed:admin:reset": "node src/seeders/resetAdminPassword.js",
     "seed:mock": "node src/seeders/seedMockData.js",
     "setup": "npm run db:migrate && npm run seed"
   },
