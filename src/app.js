@@ -33,7 +33,13 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: env.clientUrl,
+  origin(origin, callback) {
+    if (!origin || origin === env.clientUrl) {
+      callback(null, env.clientUrl);
+      return;
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
