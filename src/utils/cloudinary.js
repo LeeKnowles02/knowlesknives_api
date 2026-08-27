@@ -15,7 +15,8 @@ const uploadBuffer = (buffer, originalName) =>
         folder: 'knowles-knives',
         resource_type: 'image',
         public_id: `kk-${Date.now()}-${Math.round(Math.random() * 1e9)}`,
-        format: ext,
+        format: ext === 'png' || ext === 'webp' || ext === 'gif' ? ext : 'jpg',
+        quality: 'auto:good',
       },
       (error, result) => {
         if (error) return reject(error);

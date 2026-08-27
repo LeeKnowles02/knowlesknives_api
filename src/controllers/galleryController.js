@@ -4,16 +4,10 @@ const AppError = require('../utils/AppError');
 const pickFields = require('../utils/pickFields');
 const { GALLERY_FIELDS } = require('../utils/fieldWhitelist');
 const { sendSuccess } = require('../utils/response');
+const buildPublicGallery = require('../utils/buildPublicGallery');
 
 const getPublicGallery = asyncHandler(async (_req, res) => {
-  const items = await GalleryItem.findAll({
-    where: { active: true },
-    order: [
-      ['sortOrder', 'ASC'],
-      ['createdAt', 'DESC'],
-    ],
-  });
-
+  const items = await buildPublicGallery();
   sendSuccess(res, items);
 });
 
