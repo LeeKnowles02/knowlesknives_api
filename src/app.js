@@ -34,8 +34,8 @@ app.use(helmet({
 
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || origin === env.clientUrl) {
-      callback(null, env.clientUrl);
+    if (!origin || env.clientUrls.includes(origin.replace(/\/+$/, ''))) {
+      callback(null, origin || env.clientUrl);
       return;
     }
     callback(new Error('Not allowed by CORS'));
