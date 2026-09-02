@@ -50,6 +50,13 @@ const getAdminServiceById = asyncHandler(async (req, res) => {
 
 const createService = asyncHandler(async (req, res) => {
   const serviceData = pickFields(req.body, SERVICE_FIELDS);
+  if (!serviceData.enquiryType) {
+    serviceData.enquiryType = 'General';
+  }
+  if (serviceData.imageUrl === '') {
+    serviceData.imageUrl = null;
+  }
+
   const slug = await generateUniqueSlug(serviceData.title, Service);
 
   const service = await Service.create({ ...serviceData, slug });
@@ -64,6 +71,10 @@ const updateService = asyncHandler(async (req, res) => {
   }
 
   const updateData = pickFields(req.body, SERVICE_FIELDS);
+
+  if (updateData.imageUrl === '') {
+    updateData.imageUrl = null;
+  }
 
   if (updateData.enquiryType && !Service.ENQUIRY_TYPE_VALUES.includes(updateData.enquiryType)) {
     throw new AppError(`Invalid enquiryType. Allowed values: ${Service.ENQUIRY_TYPE_VALUES.join(', ')}`, 400);

@@ -101,21 +101,38 @@ const getAdminKnifeById = asyncHandler(async (req, res) => {
   sendSuccess(res, formatKnife(knife));
 });
 
+const normalizeOptionalPrice = (knifeData) => {
+  if (knifeData.price === undefined || knifeData.price === null || knifeData.price === '') {
+    knifeData.price = null;
+    return null;
+  }
+
+  const priceError = validatePrice(knifeData.price);
+  return priceError;
+};
+
 const createKnife = asyncHandler(async (req, res) => {
-  const { images, ...body } = req.body;
+  const { images: rawImages, ...body } = req.body;
+  const images = Array.isArray(rawImages) ? rawImages : [];
 
   const imageError = validateImages(images);
   if (imageError) throw new AppError(imageError, 400);
 
   const knifeData = pickFields(body, KNIFE_FIELDS);
-  const priceError = validatePrice(knifeData.price);
+  if (!knifeData.category) {
+    knifeData.category = 'Custom';
+  }
+
+  const priceError = normalizeOptionalPrice(knifeData);
   if (priceError) throw new AppError(priceError, 400);
 
   const knife = await sequelize.transaction(async (transaction) => {
     await applyFeaturedFields(knifeData, null, transaction);
     const slug = await generateUniqueSlug(knifeData.name, Knife);
     const created = await Knife.create({ ...knifeData, slug }, { transaction });
-    await createKnifeImages(created.id, images, transaction);
+    if (images.length > 0) {
+      await createKnifeImages(created.id, images, transaction);
+    }
     return created;
   });
 
@@ -134,12 +151,13 @@ const updateKnife = asyncHandler(async (req, res) => {
   const knifeData = pickFields(body, KNIFE_FIELDS);
 
   if (knifeData.price !== undefined) {
-    const priceError = validatePrice(knifeData.price);
+    const priceError = normalizeOptionalPrice(knifeData);
     if (priceError) throw new AppError(priceError, 400);
   }
 
   if (images !== undefined) {
-    const imageError = validateImages(images);
+    const normalizedImages = Array.isArray(images) ? images : [];
+    const imageError = validateImages(normalizedImages);
     if (imageError) throw new AppError(imageError, 400);
   }
 
@@ -161,8 +179,11 @@ const updateKnife = asyncHandler(async (req, res) => {
     await knife.update(knifeData, { transaction });
 
     if (images !== undefined) {
+      const normalizedImages = Array.isArray(images) ? images : [];
       await KnifeImage.destroy({ where: { knifeId: knife.id }, transaction });
-      await createKnifeImages(knife.id, images, transaction);
+      if (normalizedImages.length > 0) {
+        await createKnifeImages(knife.id, normalizedImages, transaction);
+      }
     }
   });
 

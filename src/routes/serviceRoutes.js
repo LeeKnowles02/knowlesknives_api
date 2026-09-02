@@ -26,7 +26,7 @@ adminRouter.get('/', getAdminServices);
 adminRouter.get('/:id', getAdminServiceById);
 adminRouter.post(
   '/',
-  validateRequired(['title', 'enquiryType']),
+  validateRequired(['title']),
   validateEnum('enquiryType', Service.ENQUIRY_TYPE_VALUES),
   createService
 );

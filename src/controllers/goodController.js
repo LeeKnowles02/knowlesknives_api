@@ -101,21 +101,38 @@ const getAdminGoodById = asyncHandler(async (req, res) => {
   sendSuccess(res, formatGood(good));
 });
 
+const normalizeOptionalPrice = (goodData) => {
+  if (goodData.price === undefined || goodData.price === null || goodData.price === '') {
+    goodData.price = null;
+    return null;
+  }
+
+  const priceError = validatePrice(goodData.price);
+  return priceError;
+};
+
 const createGood = asyncHandler(async (req, res) => {
-  const { images, ...body } = req.body;
+  const { images: rawImages, ...body } = req.body;
+  const images = Array.isArray(rawImages) ? rawImages : [];
 
   const imageError = validateImages(images);
   if (imageError) throw new AppError(imageError, 400);
 
   const goodData = pickFields(body, GOOD_FIELDS);
-  const priceError = validatePrice(goodData.price);
+  if (!goodData.category) {
+    goodData.category = 'Custom';
+  }
+
+  const priceError = normalizeOptionalPrice(goodData);
   if (priceError) throw new AppError(priceError, 400);
 
   const good = await sequelize.transaction(async (transaction) => {
     await applyFeaturedFields(goodData, null, transaction);
     const slug = await generateUniqueSlug(goodData.name, Good);
     const created = await Good.create({ ...goodData, slug }, { transaction });
-    await createGoodImages(created.id, images, transaction);
+    if (images.length > 0) {
+      await createGoodImages(created.id, images, transaction);
+    }
     return created;
   });
 
@@ -134,12 +151,13 @@ const updateGood = asyncHandler(async (req, res) => {
   const goodData = pickFields(body, GOOD_FIELDS);
 
   if (goodData.price !== undefined) {
-    const priceError = validatePrice(goodData.price);
+    const priceError = normalizeOptionalPrice(goodData);
     if (priceError) throw new AppError(priceError, 400);
   }
 
   if (images !== undefined) {
-    const imageError = validateImages(images);
+    const normalizedImages = Array.isArray(images) ? images : [];
+    const imageError = validateImages(normalizedImages);
     if (imageError) throw new AppError(imageError, 400);
   }
 
@@ -161,8 +179,11 @@ const updateGood = asyncHandler(async (req, res) => {
     await good.update(goodData, { transaction });
 
     if (images !== undefined) {
+      const normalizedImages = Array.isArray(images) ? images : [];
       await GoodImage.destroy({ where: { goodId: good.id }, transaction });
-      await createGoodImages(good.id, images, transaction);
+      if (normalizedImages.length > 0) {
+        await createGoodImages(good.id, normalizedImages, transaction);
+      }
     }
   });
 

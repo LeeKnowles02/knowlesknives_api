@@ -27,7 +27,7 @@ adminRouter.get('/', getAdminKnives);
 adminRouter.get('/:id', getAdminKnifeById);
 adminRouter.post(
   '/',
-  validateRequired(['name', 'category', 'price', 'images']),
+  validateRequired(['name']),
   validatePositiveNumber('price'),
   validateEnum('availability', Knife.AVAILABILITY_VALUES),
   createKnife

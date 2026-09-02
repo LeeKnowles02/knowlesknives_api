@@ -34,7 +34,7 @@ const Good = sequelize.define(
     },
     price: {
       type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
+      allowNull: true,
     },
     availability: {
       type: DataTypes.ENUM(...AVAILABILITY_VALUES),

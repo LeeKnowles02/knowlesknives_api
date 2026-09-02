@@ -26,7 +26,7 @@ adminRouter.get('/', getAdminGoods);
 adminRouter.get('/:id', getAdminGoodById);
 adminRouter.post(
   '/',
-  validateRequired(['name', 'category', 'price', 'images']),
+  validateRequired(['name']),
   validatePositiveNumber('price'),
   validateEnum('availability', Good.AVAILABILITY_VALUES),
   createGood
